@@ -94,6 +94,8 @@ class AnimateDiffScript(scripts.Script):
 
     def postprocess(self, p: StableDiffusionProcessing, res: Processed, params: AnimateDiffProcess):
         if p.is_api and isinstance(params, dict): params = self.ad_params
+        logger.info(p)
+        logger.info(params)
         if params.enable:
             params.prompt_scheduler = AnimateDiffPromptSchedule(p, params)
             params.prompt_scheduler.save_infotext_txt(res)
