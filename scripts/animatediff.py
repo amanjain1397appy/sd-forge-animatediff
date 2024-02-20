@@ -18,6 +18,7 @@ from scripts.animatediff_settings import on_ui_settings
 from scripts.animatediff_infotext import update_infotext, infotext_pasted
 from scripts.animatediff_utils import get_animatediff_arg
 
+
 script_dir = scripts.basedir()
 motion_module.set_script_dir(script_dir)
 
@@ -87,12 +88,14 @@ class AnimateDiffScript(scripts.Script):
     def postprocess_batch_list(self, p: StableDiffusionProcessing, pp: PostprocessBatchListArgs, params: AnimateDiffProcess, **kwargs):
         if p.is_api and isinstance(params, dict): params = self.ad_params
         if params.enable:
+            params.prompt_scheduler = AnimateDiffPromptSchedule(p, params)
             params.prompt_scheduler.save_infotext_img(p)
 
 
     def postprocess(self, p: StableDiffusionProcessing, res: Processed, params: AnimateDiffProcess):
         if p.is_api and isinstance(params, dict): params = self.ad_params
         if params.enable:
+            params.prompt_scheduler = AnimateDiffPromptSchedule(p, params)
             params.prompt_scheduler.save_infotext_txt(res)
             AnimateDiffOutput().output(p, res, params)
             logger.info("AnimateDiff process end.")
