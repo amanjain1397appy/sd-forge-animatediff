@@ -65,7 +65,9 @@ class AnimateDiffScript(scripts.Script):
 
 
     def before_process_batch(self, p: StableDiffusionProcessing, params: AnimateDiffProcess, **kwargs):
-        if p.is_api and isinstance(params, dict): params = self.ad_params
+        if isinstance(params, dict):
+            self.ad_params = AnimateDiffProcess(**params)
+            params = self.ad_params
         if params.enable and isinstance(p, StableDiffusionProcessingImg2Img) and not params.is_i2i_batch:
             AnimateDiffI2VLatent().randomize(p, params)
 
