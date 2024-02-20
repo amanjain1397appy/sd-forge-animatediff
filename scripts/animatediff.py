@@ -50,6 +50,11 @@ class AnimateDiffScript(scripts.Script):
     def before_process(self, p: StableDiffusionProcessing, params: AnimateDiffProcess):
         if p.is_api:
             params = get_animatediff_arg(p)
+        
+        if isinstance(params, dict):
+            self.ad_params = AnimateDiffProcess(**params)
+            params = self.ad_params
+
         motion_module.set_ad_params(params)
         if params.enable:
             logger.info("AnimateDiff process start.")
@@ -60,28 +65,32 @@ class AnimateDiffScript(scripts.Script):
 
 
     def before_process_batch(self, p: StableDiffusionProcessing, params: AnimateDiffProcess, **kwargs):
+        if p.is_api and isinstance(params, dict): params = self.ad_params
         if params.enable and isinstance(p, StableDiffusionProcessingImg2Img) and not params.is_i2i_batch:
             AnimateDiffI2VLatent().randomize(p, params)
 
 
     def process_batch(self, p, params: AnimateDiffProcess, **kwargs):
+        if p.is_api and isinstance(params, dict): params = self.ad_params
         if params.enable:
             motion_module.set_ddim_alpha(p.sd_model)
 
 
     def process_before_every_sampling(self, p, params: AnimateDiffProcess, **kwargs):
+        if p.is_api and isinstance(params, dict): params = self.ad_params
         if params.enable:
             motion_module.inject(p.sd_model, params.model)
 
 
     def postprocess_batch_list(self, p: StableDiffusionProcessing, pp: PostprocessBatchListArgs, params: AnimateDiffProcess, **kwargs):
+        if p.is_api and isinstance(params, dict): params = self.ad_params
         if params.enable:
             params.prompt_scheduler.save_infotext_img(p)
 
 
     def postprocess(self, p: StableDiffusionProcessing, res: Processed, params: AnimateDiffProcess):
-        print(params)
-        if params['enable']:
+        if p.is_api and isinstance(params, dict): params = self.ad_params
+        if params.enable:
             params.prompt_scheduler.save_infotext_txt(res)
             AnimateDiffOutput().output(p, res, params)
             logger.info("AnimateDiff process end.")
