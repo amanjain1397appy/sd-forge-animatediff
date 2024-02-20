@@ -80,6 +80,7 @@ class AnimateDiffScript(scripts.Script):
 
 
     def postprocess(self, p: StableDiffusionProcessing, res: Processed, params: AnimateDiffProcess):
+        print(params)
         if params.enable:
             params.prompt_scheduler.save_infotext_txt(res)
             AnimateDiffOutput().output(p, res, params)
